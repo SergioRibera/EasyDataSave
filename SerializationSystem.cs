@@ -22,13 +22,12 @@ namespace EasyDataSave
             {
                 object obj = deserializePrivate ? JsonConvert.DeserializeObject<object>(s.Desencrypt(key), settings) : JsonConvert.DeserializeObject<T>(s.Desencrypt(key));
                 T data = default;
-                PropertyInfo[] propiedades = obj.GetType().GetProperties();
-                for (int i = 0; i < propiedades.Length; i++)
-                {
-                    for (int x = 0; x < data.GetType().GetProperties().Length; x++)
-                    {
-                        if (propiedades[i].Name == data.GetType().GetProperties()[x].Name)
-                            data.GetType().GetProperty(propiedades[i].Name).SetValue(propiedades[i].GetType(), propiedades[i].GetValue(propiedades[i].GetType()), new object[] { x });
+                Type originType = data.GetType();
+                Type newDataType = obj.GetType();
+                foreach(var originValue in originType.GetFields()){
+                    foreach(var newDataValue in newDataType.GetFields()){
+                        if (originValue.Name == newDataValue.Name)
+                            originValue.SetValue(data, newDataValue.GetValue(obj));
                     }
                 }
                 return data;
